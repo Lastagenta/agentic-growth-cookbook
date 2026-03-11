@@ -37,7 +37,7 @@ Intelligence Signals:
 3. THE VALUE BRIDGE: Connect their current event to our solution. How do we make their specific "now" easier?
 
 # CONSTRAINTS
-- LANGUAGE: Russian.
+- LANGUAGE: English.
 - STYLE: "Info-style". No "Hope you are doing well", no flattery, no robotic transitions.
 - TONE: Peer-to-peer expert. British "understated confidence" style (calm, direct, no hype).
 - LENGTH: Icebreaker must be max 250 characters.
