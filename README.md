@@ -24,7 +24,7 @@ This repository is structured as a collection of independent, production-ready m
 
 | Module | Status | Description | Stack |
 | :--- | :--- | :--- | :--- |
-| [**1. SDR Agent Pipeline**](./modules/sdr-agent-pipeline) | `Active` | Event-driven pipeline replacing linear AI spam with precise lead scoring and data sanitization (Contextual Triangulation). | n8n, Gemini 2.5 Flash, JS, BigQuery |
+| [**1. SDR Agent Pipeline**](./modules/sdr-agent-pipeline) | `Active` | Event-driven pipeline replacing linear AI spam with precise lead scoring and data sanitization (Contextual Triangulation). | n8n, Gemini 2.5 Flash,Clay, JS, BigQuery |
 | *More hardcore engines coming soon...* | - | - | - |
 
 ---
