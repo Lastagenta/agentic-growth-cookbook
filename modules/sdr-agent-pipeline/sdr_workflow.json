@@ -1,0 +1,324 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "clay-input",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -368,
+        16
+      ],
+      "id": "3ab05dcb-681d-432a-ae3e-b37627efbe5a",
+      "name": "Webhook",
+      "webhookId": "your-webhook-id"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=# ROLE\nYou are a Senior Strategic SDR at {{ $node[\"Edit Fields\"].json[\"my_company_name\"] }}. \nOUR VALUE PROPOSITION: {{ $node[\"Edit Fields\"].json[\"my_usp\"] }}\n\n# INPUT DATA\nProspect: {{ $node[\"Webhook\"].json[\"body\"][\"name\"] }}, {{ $node[\"Webhook\"].json[\"body\"][\"title\"] }} at {{ $node[\"Webhook\"].json[\"body\"][\"company\"] }}\nBio: {{ $node[\"Webhook\"].json[\"body\"][\"summary\"] }}\n\nIntelligence Signals:\n- Recent News: {{ $node[\"News Hunter\"].json[\"organic\"] ? $node[\"News Hunter\"].json[\"organic\"][0][\"snippet\"] : \"No direct recent news found.\" }}\n- Hiring Context: {{ $node[\"Job Hunter\"].json[\"organic\"] ? \"Active recruitment detected.\" : \"Stable headcount / Efficiency mode.\" }}\n\n# ANALYSIS ALGORITHM (Think Step-by-Step)\n1. SIGNAL INTERPRETATION: Analyze News/Hiring. If hiring tech/sales, they have a \"Scale/Velocity\" pain. If news mentions a product/index launch (like Retail Recovery Index), they have an \"Efficiency/Execution\" pain.\n2. HYPOTHESIZE FRICTION: How does this specific signal create a \"Rabbit Hole\" or a \"Bottleneck\" for a {{ $node[\"Webhook\"].json[\"body\"][\"title\"] }}? (e.g., more data to process, harder to maintain accuracy).\n3. THE VALUE BRIDGE: Connect their current event to our solution ({{ $node[\"Edit Fields\"].json[\"my_company_name\"] }}). How do we make their specific \"now\" easier?\n\n# CONSTRAINTS\n- LANGUAGE: Russian.\n- STYLE: \"Info-style\". No \"Hope you are doing well\", no flattery (\"Great news about...\"), no robotic transitions (\"Based on my research...\").\n- TONE: Peer-to-peer expert. British \"understated confidence\" style (calm, direct, no hype).\n- LENGTH: Icebreaker must be max 250 characters.\n\n# OUTPUT FORMAT (Strict JSON)\nReturn ONLY a JSON object:\n{\n  \"strategic_insight\": \"Deep technical reason why this lead is relevant based on the signal.\",\n  \"icebreaker_ru\": \"Your 1-2 sentence intro in Russian.\",\n  \"relevance_score\": integer (1-10),\n  \"pain_category\": \"Efficiency / Scale / Innovation / Risk\"\n}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        0
+      ],
+      "id": "c5971b3b-f221-4f2d-8c9c-76edb66a9aa6",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "iMmsr1Wq6emkg8YY",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "insert",
+        "projectId": {
+          "__rl": true,
+          "value": "your-gcp-project-id",
+          "mode": "list",
+          "cachedResultName": "My First Project",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=project-95172900-e5fe-49f1-a7e"
+        },
+        "datasetId": {
+          "__rl": true,
+          "value": "growth_engine",
+          "mode": "list",
+          "cachedResultName": "growth_engine"
+        },
+        "tableId": {
+          "__rl": true,
+          "value": "intent_signals",
+          "mode": "list",
+          "cachedResultName": "intent_signals"
+        },
+        "dataMode": "define",
+        "fieldsUi": {
+          "values": [
+            {
+              "fieldId": "company_name",
+              "fieldValue": "={{ $('Webhook').item.json.body.company }}"
+            },
+            {
+              "fieldId": "linkedin_url",
+              "fieldValue": "={{ $('Webhook').item.json.body.linkedin_url }}"
+            },
+            {
+              "fieldId": "intent_status",
+              "fieldValue": "={{ $json.strategic_insight }}"
+            },
+            {
+              "fieldId": "icebreaker_ru",
+              "fieldValue": "={{ $json.icebreaker_ru }}"
+            },
+            {
+              "fieldId": "prospect_title",
+              "fieldValue": "={{ $('Webhook').item.json.body.title }}"
+            },
+            {
+              "fieldId": "lead_score",
+              "fieldValue": "={{ $json.relevance_score }}"
+            },
+            {
+              "fieldId": "signal_type",
+              "fieldValue": "={{ $json.pain_category }}"
+            },
+            {
+              "fieldId": "prospect_name",
+              "fieldValue": "={{ $('Webhook').item.json.body.name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 2.1,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "66832eb3-56f8-40e1-94d6-1360f147e168",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "googleApi": {
+          "id": "AIMsOqk80wtJibuK",
+          "name": "Google BigQuery account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        528,
+        0
+      ],
+      "id": "e2a7d594-87f3-4efc-b7d1-01df81b4d563",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"my_company_name\": \"SignalStream AI\",\n  \"my_product_category\": \"AI Infrastructure for Analytics\",\n  \"my_usp\": \"Автоматизация пайплайнов данных для быстрорастущих ритейл-проектов. Мы сокращаем время подготовки данных для моделей с недель до минут.\",\n  \"target_pain_points\": [\n    \"Рутинная очистка данных\",\n    \"Нехватка кадров в отделе аналитики\",\n    \"Медленное масштабирование моделей на новые рынки\"\n  ],\n  \"our_key_benefit\": \"Ваши аналитики фокусируются на инсайтах, а не на коде и парсинге.\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -208,
+        16
+      ],
+      "id": "816a7f5e-49cd-4d85-a3ef-56bbb60a095c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://google.serper.dev/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"q\": \"{{ $node[\"Webhook\"].json[\"body\"][\"company\"] }} (news OR announcement OR \\\"press release\\\")\",\n  \"num\": 5,\n  \"tbs\": \"qdr:y\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        -80
+      ],
+      "id": "855ef988-1efd-4d2b-b2f0-e4d315d1b428",
+      "name": "News Hunter",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "q2OkfbtA7ZtFThh2",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://google.serper.dev/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"q\": \"{{ $node[\"Webhook\"].json[\"body\"][\"company\"] }} (hiring OR vacancies OR \\\"open positions\\\")\",\n  \"num\": 8,\n  \"tbs\": \"qdr:m6\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        112
+      ],
+      "id": "cddde509-f673-4db9-a748-7b03121d41da",
+      "name": "Job Hunter",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "q2OkfbtA7ZtFThh2",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract text from the Gemini node\nconst rawText = $node[\"Message a model\"].json.content.parts[0].text;\n\n// Aggressively find the JSON boundaries to ignore \"Deepali...\" or other prefix text\nconst start = rawText.indexOf('{');\nconst end = rawText.lastIndexOf('}');\n\n// Fallback if no JSON structure is found\nif (start === -1 || end === -1) {\n  return {\n    icebreaker_ru: \"Error: JSON not found\",\n    strategic_insight: rawText.substring(0, 1000), // Keep raw text for debugging\n    relevance_score: 0.0,\n    pain_category: \"Error\"\n  };\n}\n\nconst jsonStr = rawText.substring(start, end + 1);\n\ntry {\n  const parsed = JSON.parse(jsonStr);\n  \n  // Ensure relevance_score is a float for BigQuery\n  let score = parseFloat(parsed.relevance_score);\n  if (isNaN(score)) score = 0.0;\n\n  // Return as a flat object so n8n can map fields directly\n  return {\n    icebreaker_ru: parsed.icebreaker_ru || \"N/A\",\n    strategic_insight: parsed.strategic_insight || \"N/A\",\n    relevance_score: score,\n    pain_category: parsed.pain_category || \"General\",\n    // Adding a raw field just in case you need the whole string\n    raw_json_string: jsonStr \n  };\n} catch (e) {\n  return {\n    icebreaker_ru: \"Parsing Error\",\n    strategic_insight: \"Failed to parse: \" + e.message + \" | Raw: \" + jsonStr.substring(0, 500),\n    relevance_score: 0.0,\n    pain_category: \"Error\"\n  };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        112
+      ],
+      "id": "0eba8c79-a186-4558-a980-e1ccc69ee8aa",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "News Hunter",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Job Hunter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "News Hunter": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Hunter": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a2e562c7-0c95-4b11-a096-31a27974e502",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bbd607cf96438625db8ede43061a6ae76b9d444d27fd207d844ec6b954949efe"
+  },
+  "id": "YUqpX65BXCjAuS6i",
+  "tags": []
+}
