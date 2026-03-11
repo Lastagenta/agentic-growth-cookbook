@@ -1,6 +1,6 @@
 # Contextual SDR Agent Pipeline 🎯
 
-This is a production-ready, event-driven n8n pipeline that replaces linear AI email generation with **Agentic Reasoning**. 
+This is a production-ready, event-driven n8n pipeline(sdr_workflow.json) that replaces linear AI email generation with **Agentic Reasoning**. 
 
 Instead of writing a generic "hope you are doing well" email to every lead, this agent uses **Contextual Triangulation** via Serper API (News & Hiring data) and Gemini 2.5 Flash to score leads *before* any outreach occurs. If the relevance score is low, the lead is discarded, protecting your sender reputation and token budget.
 
